@@ -38,10 +38,10 @@ function initVisualization(data, stateData) {
 
         const narrative = [
             "Introduction - The COVID-19 pandemic and outbreak is an important event that has been documented rigorously. The following pages aim to inform and display the effect of the pandemic in the US. Here is a link to the data being used in the following analysis: https://github.com/nytimes/covid-19-data/blob/master/us-states.csv. The data will focus on dates ranging from January 2020 to March 2023. ",
-            "Cases in the US - This scene shows the total number of COVID-19 cases over time across the United States. We can observe the rise in cases as the pandemic progresses.",
-            "Deaths Over Time - This scene highlights the total number of COVID-19 deaths over time. It allows us to see the impact of the virus in terms of fatalities.",
-            "New York Focus - This scene focuses on New York, one of the hardest-hit states during the early stages of the pandemic starting from January 2020 to March 2023.",
-            "Comparative Analysis - This scene provides a comparison of COVID-19 cases and deaths across different states from January 2020 to March 2023."
+            "Cases in the US - This scene shows the total number of COVID-19 cases over time across the United States. We can observe the rise in cases as the pandemic progresses. Click 'Next' to see the trend in COVID-19 Deaths.",
+            "Deaths Over Time - This scene highlights the total number of COVID-19 deaths over time. It allows us to see the impact of the virus in terms of fatalities. Click 'Next' to see a more detailed snapshot on New York.",
+            "New York Focus - This scene focuses on New York, one of the hardest-hit states during the early stages of the pandemic starting from January 2020 to March 2023. Click 'Next' to explore other US States' data.",
+            "Comparative Analysis - This scene provides a comparison of COVID-19 cases and deaths across different states from January 2020 to March 2023. Here you can select the 'State' Dropdown Menu to select which US State you want to solely view in the treemap. You can also click 'Reset' to see the original view with multiple states. "
         ];
 
         narrativeText.text(narrative[currentScene]);
@@ -358,80 +358,103 @@ function scene4(svg, data, stateData) {
                     .domain(["cases", "deaths"])
                     .range(["#98abc5", "#8a89a6"]);
 
-    // Parse the date and sort data by date
     data.forEach(d => {
         d.date = new Date(d.date);
     });
     data.sort((a, b) => a.date - b.date);
 
-    // Filter data to get the last date's values for each state
     const latestData = Array.from(d3.rollup(data, v => v[v.length - 1], d => d.state).values());
 
-    latestData.sort((a, b) => b.cases - a.cases);
-    const topStateData = latestData.slice(0, 25);
-
-    const treemap = d3.treemap()
-                      .size([width, height])
-                      .padding(1);
-
-    const root = d3.hierarchy({ values: topStateData }, d => d.values)
-                   .sum(d => d.cases)
-                   .sort((a, b) => b.value - a.value);
-
-    treemap(root);
-
-    const nodes = g.selectAll("g")
-                   .data(root.leaves())
-                   .enter()
-                   .append("g")
-                   .attr("transform", d => `translate(${d.x0},${d.y0})`);
-
-    nodes.append("rect")
-         .attr("id", d => d.data.state)
-         .attr("width", d => d.x1 - d.x0)
-         .attr("height", d => d.y1 - d.y0)
-         .attr("fill", d => color(d.data.type));
-
-    nodes.append("text")
-         .attr("x", 3)
-         .attr("y", 20)
-         .text(d => d.data.state);
-
-    const tooltip = d3.select("body")
-                      .append("div")
-                      .attr("class", "tooltip")
-                      .style("position", "absolute")
-                      .style("background", "#f4f4f4")
-                      .style("padding", "5px")
-                      .style("border", "1px solid #d4d4d4")
-                      .style("border-radius", "3px")
-                      .style("display", "none")
-                      .style("pointer-events", "none");
-
-    const formatNumber = d3.format(",");
-
-    nodes.on("mouseover", function (event, d) {
-        tooltip.style("display", "block")
-               .html(`State: ${d.data.state}<br>Cases: ${formatNumber(d.data.cases)}<br>Deaths: ${formatNumber(d.data.deaths)}`);
-    })
-    .on("mousemove", function (event) {
-        const tooltipWidth = parseInt(tooltip.style("width"));
-        const tooltipHeight = parseInt(tooltip.style("height"));
-        const xOffset = event.pageX + tooltipWidth > window.innerWidth ? -tooltipWidth - 10 : 10;
-        const yOffset = event.pageY + tooltipHeight > window.innerHeight ? -tooltipHeight - 10 : 10;
-
-        tooltip.style("top", `${event.pageY + yOffset}px`)
-               .style("left", `${event.pageX + xOffset}px`);
-    })
-    .on("mouseout", function () {
-        tooltip.style("display", "none");
+    const stateDropdown = d3.select("#stateDropdown");
+    const uniqueStates = Array.from(new Set(latestData.map(d => d.state)));
+    uniqueStates.forEach(state => {
+        stateDropdown.append("option")
+                     .attr("value", state)
+                     .text(state);
     });
 
-    g.append("text")
-     .attr("x", width / 2)
-     .attr("y", -2)
-     .attr("text-anchor", "middle")
-     .style("font-size", "16px")
-     .text("Top 25 States by COVID-19 Cases and Deaths");
-}
+    function updateTreemap(selectedState = "") {
+        g.selectAll("*").remove();  
 
+        let filteredData = latestData;
+        if (selectedState) {
+            filteredData = latestData.filter(d => d.state === selectedState);
+        }
+
+        const treemap = d3.treemap()
+                          .size([width, height])
+                          .padding(1);
+
+        const root = d3.hierarchy({ values: filteredData }, d => d.values)
+                       .sum(d => d.cases)
+                       .sort((a, b) => b.value - a.value);
+
+        treemap(root);
+
+        const nodes = g.selectAll("g")
+                       .data(root.leaves())
+                       .enter()
+                       .append("g")
+                       .attr("transform", d => `translate(${d.x0},${d.y0})`);
+
+        nodes.append("rect")
+             .attr("id", d => d.data.state)
+             .attr("width", d => d.x1 - d.x0)
+             .attr("height", d => d.y1 - d.y0)
+             .attr("fill", d => color(d.data.type));
+
+        nodes.append("text")
+             .attr("x", 3)
+             .attr("y", 20)
+             .text(d => d.data.state);
+
+        const tooltip = d3.select("body")
+                          .append("div")
+                          .attr("class", "tooltip")
+                          .style("position", "absolute")
+                          .style("background", "#f4f4f4")
+                          .style("padding", "5px")
+                          .style("border", "1px solid #d4d4d4")
+                          .style("border-radius", "3px")
+                          .style("display", "none")
+                          .style("pointer-events", "none");
+
+        const formatNumber = d3.format(",");
+
+        nodes.on("mouseover", function (event, d) {
+            tooltip.style("display", "block")
+                   .html(`State: ${d.data.state}<br>Cases: ${formatNumber(d.data.cases)}<br>Deaths: ${formatNumber(d.data.deaths)}`);
+        })
+        .on("mousemove", function (event) {
+            const tooltipWidth = parseInt(tooltip.style("width"));
+            const tooltipHeight = parseInt(tooltip.style("height"));
+            const xOffset = event.pageX + tooltipWidth > window.innerWidth ? -tooltipWidth - 10 : 10;
+            const yOffset = event.pageY + tooltipHeight > window.innerHeight ? -tooltipHeight - 10 : 10;
+
+            tooltip.style("top", `${event.pageY + yOffset}px`)
+                   .style("left", `${event.pageX + xOffset}px`);
+        })
+        .on("mouseout", function () {
+            tooltip.style("display", "none");
+        });
+
+        g.append("text")
+         .attr("x", width / 2)
+         .attr("y", -2)
+         .attr("text-anchor", "middle")
+         .style("font-size", "16px")
+         .text(selectedState ? `State: ${selectedState}` : "Top States by COVID-19 Cases and Deaths");
+    }
+
+    updateTreemap();
+
+    d3.select("#stateDropdown").on("change", function() {
+        const selectedState = d3.select(this).property("value");
+        updateTreemap(selectedState);
+    });
+
+    d3.select("#resetButton").on("click", function() {
+        d3.select("#stateDropdown").property("value", "");
+        updateTreemap();
+    });
+}

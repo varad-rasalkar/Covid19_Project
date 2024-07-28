@@ -15,6 +15,10 @@
         #controls {
             margin: 20px;
         }
+        #controls select, #controls button {
+            margin: 5px;
+            padding: 5px;
+        }
         #narrative {
             font-size: 18px;
             margin: 20px;
@@ -23,10 +27,28 @@
             border: 1px solid black;
             margin: 20px auto;
         }
+        #date-filter {
+            margin: 20px;
+        }
+        #note {
+            background-color: yellow;
+            color: black;
+            padding: 10px;
+            margin: 20px;
+            border: 1px solid black;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
+    <div id="note">
+        Note: The state dropdown will be functional only on the last slide.
+    </div>
     <div id="controls">
+        <select id="stateDropdown">
+            <option value="">Select a State</option>
+        </select>
+        <button id="resetButton">Reset</button>
         <button id="prev">Previous</button>
         <button id="next">Next</button>
     </div>
