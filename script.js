@@ -40,7 +40,7 @@ function initVisualization(data, stateData) {
             "Introduction - The COVID-19 pandemic and outbreak is an important event that has been documented rigorously. The following pages aim to inform and display the effect of the pandemic in the US. Here is a link to the data being used in the following analysis: https://github.com/nytimes/covid-19-data/blob/master/us-states.csv. The data will focus on dates ranging from January 2020 to March 2023. ",
             "Cases in the US - This scene shows the total number of COVID-19 cases over time across the United States. We can observe the rise in cases as the pandemic progresses.",
             "Deaths Over Time - This scene highlights the total number of COVID-19 deaths over time. It allows us to see the impact of the virus in terms of fatalities.",
-            "New York Focus - This scene focuses on New York, one of the hardest-hit states during the early stages of the pandemic.",
+            "New York Focus - This scene focuses on New York, one of the hardest-hit states during the early stages of the pandemic starting from January 2020 to March 2023.",
             "Comparative Analysis - This scene provides a comparison of COVID-19 cases and deaths across different states from January 2020 to March 2023."
         ];
 
