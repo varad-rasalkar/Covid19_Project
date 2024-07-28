@@ -2,16 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Covid-19 US States Visualization</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COVID-19 Visualization</title>
     <script src="https://d3js.org/d3.v6.min.js"></script>
-    <script defer src="script.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        #controls {
+            margin: 20px;
+        }
+        #narrative {
+            font-size: 18px;
+            margin: 20px;
+        }
+        svg {
+            border: 1px solid black;
+            margin: 20px auto;
+        }
+    </style>
 </head>
 <body>
-    <div id="visualization"></div>
     <div id="controls">
         <button id="prev">Previous</button>
         <button id="next">Next</button>
     </div>
+    <div id="narrative"></div>
+    <div id="visualization"></div>
+
+    <script src="script.js"></script>
 </body>
 </html>
